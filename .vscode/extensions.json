@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "boto3typed.boto3-ide",
+        "ms-python.black-formatter",
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "esbenp.prettier-vscode"
+    ]
+}
