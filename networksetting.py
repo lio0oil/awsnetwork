@@ -6,6 +6,92 @@ client = boto3.client("ec2")
 
 
 class NetworkSetting:
+    def get_vpcs(self):
+        nexttoken = ""
+        result = []
+        while True:
+            if nexttoken == "":
+                subnet = client.describe_vpcs()
+            else:
+                subnet = client.describe_vpcs(NextToken=nexttoken)
+            if not len(subnet["Vpcs"]) == 0:
+                result.extend(subnet["Vpcs"])
+            if "NextToken" in subnet:
+                nexttoken = subnet["NextToken"]
+            else:
+                break
+        df = pd.json_normalize(result)
+        columns = [
+            "VpcId",
+            "State",
+            "CidrBlock",
+            "DhcpOptionsId",
+            "InstanceTenancy",
+            "Ipv6CidrBlockAssociationSet",
+            "CidrBlockAssociationSet",
+            "IsDefault",
+            "OwnerId",
+            "Tags",
+        ]
+        for column in columns:
+            if column not in df.columns:
+                df[column] = ""
+        df = df.sort_values(["VpcId"])
+        df.to_csv(
+            "./csv/vpcs.csv",
+            index=False,
+            columns=columns,
+        )
+
+    def get_subnets(self):
+        nexttoken = ""
+        result = []
+        while True:
+            if nexttoken == "":
+                subnet = client.describe_subnets()
+            else:
+                subnet = client.describe_subnets(NextToken=nexttoken)
+            if not len(subnet["Subnets"]) == 0:
+                result.extend(subnet["Subnets"])
+            if "NextToken" in subnet:
+                nexttoken = subnet["NextToken"]
+            else:
+                break
+        df = pd.json_normalize(result)
+        columns = [
+            "SubnetId",
+            "State",
+            "VpcId",
+            "CidrBlock",
+            "AvailableIpAddressCount",
+            "AvailabilityZone",
+            "AvailabilityZoneId",
+            "DefaultForAz",
+            "EnableLniAtDeviceIndex",
+            "MapPublicIpOnLaunch",
+            "MapCustomerOwnedIpOnLaunch",
+            "CustomerOwnedIpv4Pool",
+            "OwnerId",
+            "AssignIpv6AddressOnCreation",
+            "Ipv6CidrBlockAssociationSet",
+            "SubnetArn",
+            "OutpostArn",
+            "EnableDns64",
+            "Ipv6Native",
+            "PrivateDnsNameOptionsOnLaunch.HostnameType",
+            "PrivateDnsNameOptionsOnLaunch.EnableResourceNameDnsARecord",
+            "PrivateDnsNameOptionsOnLaunch.EnableResourceNameDnsAAAARecord",
+        ]
+        for column in columns:
+            if column not in df.columns:
+                df[column] = ""
+        df = df.sort_values(["SubnetId"])
+        df.to_csv(
+            "./csv/subnets.csv",
+            index=False,
+            columns=columns,
+        )
+
     def get_securitygroup(self):
         nexttoken = ""
         result = []
@@ -286,6 +372,8 @@ class NetworkSetting:
 if __name__ == "__main__":
     os.makedirs("./csv/", exist_ok=True)
     ns = NetworkSetting()
+    ns.get_vpcs()
+    ns.get_subnets()
     ns.get_securitygroup()
     ns.get_securitygrouprules()
     ns.get_managedprefixlists()
