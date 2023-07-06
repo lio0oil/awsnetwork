@@ -21,19 +21,24 @@ class NetworkSetting:
             else:
                 break
         df = pd.json_normalize(result)
+        columns = [
+            "GroupId",
+            "GroupName",
+            "VpcId",
+            "Description",
+            "IpPermissions",
+            "IpPermissionsEgress",
+            "Tags",
+            "OwnerId",
+        ]
+        for column in columns:
+            if column not in df.columns:
+                df[column] = ""
+        df = df.sort_values(["GroupId"])
         df.to_csv(
             "./csv/security_group.csv",
             index=False,
-            # columns=[
-            #     "GroupName",
-            #     "GroupId",
-            #     "VpcId",
-            #     "Description",
-            #     "IpPermissions",
-            #     "IpPermissionsEgress",
-            #     "Tags",
-            #     "OwnerId",
-            # ],
+            columns=columns,
         )
 
     def get_securitygrouprules(self):
@@ -51,44 +56,58 @@ class NetworkSetting:
             else:
                 break
         df = pd.json_normalize(result)
+        columns = [
+            "GroupId",
+            "SecurityGroupRuleId",
+            "GroupOwnerId",
+            "IsEgress",
+            "IpProtocol",
+            "FromPort",
+            "ToPort",
+            "CidrIpv4",
+            "CidrIpv6",
+            "PrefixListId",
+            "ReferencedGroupInfo.GroupId",
+            "ReferencedGroupInfo.PeeringStatus",
+            "ReferencedGroupInfo.UserId",
+            "ReferencedGroupInfo.VpcId",
+            "ReferencedGroupInfo.VpcPeeringConnectionId",
+            "Description",
+            "Tags",
+        ]
+        for column in columns:
+            if column not in df.columns:
+                df[column] = ""
+        df = df.sort_values(["GroupId", "SecurityGroupRuleId"])
         df.to_csv(
             "./csv/security_group_rules.csv",
             index=False,
-            # columns=[
-            #     "SecurityGroupRuleId",
-            #     "GroupId",
-            #     "GroupOwnerId",
-            #     "IsEgress",
-            #     "IpProtocol",
-            #     "FromPort",
-            #     "ToPort",
-            #     "Tags",
-            #     "ReferencedGroupInfo.GroupId",
-            #     "ReferencedGroupInfo.UserId",
-            #     "CidrIpv4",
-            #     "CidrIpv6",
-            #     "PrefixListId",
-            #     "Description",
-            # ],
+            columns=columns,
         )
 
     def get_managedprefixlists(self):
         result = self.__get_managedprefixlists()
         df = pd.json_normalize(result)
+        columns = [
+            "PrefixListId",
+            "PrefixListName",
+            "MaxEntries",
+            "AddressFamily",
+            "State",
+            "StateMessage",
+            "Version",
+            "PrefixListArn",
+            "Tags",
+            "OwnerId",
+        ]
+        for column in columns:
+            if column not in df.columns:
+                df[column] = ""
+        df = df.sort_values(["PrefixListId"])
         df.to_csv(
             "./csv/managed_prefix_lists.csv",
             index=False,
-            # columns=[
-            #     "PrefixListId",
-            #     "PrefixListName",
-            #     "MaxEntries",
-            #     "AddressFamily",
-            #     "State",
-            #     "Version",
-            #     "PrefixListArn",
-            #     "Tags",
-            #     "OwnerId",
-            # ],
+            columns=columns,
         )
 
     def __get_managedprefixlists(self):
@@ -127,14 +146,19 @@ class NetworkSetting:
                     break
 
         df = pd.json_normalize(result)
+        df = df.sort_values(["PrefixListId", "Cidr"])
+        columns = [
+            "PrefixListId",
+            "Cidr",
+            "Description",
+        ]
+        for column in columns:
+            if column not in df.columns:
+                df[column] = ""
         df.to_csv(
             "./csv/managed_prefix_entries.csv",
             index=False,
-            # columns=[
-            #     "PrefixListId",
-            #     "Cidr",
-            #     "Description",
-            # ],
+            columns=columns,
         )
 
     def get_routetables(self):
@@ -153,18 +177,23 @@ class NetworkSetting:
                 break
         # route tables
         df = pd.json_normalize(result)
+        columns = [
+            "RouteTableId",
+            "VpcId",
+            "Tags",
+            "OwnerId",
+            "Associations",
+            "PropagatingVgws",
+            "Routes",
+        ]
+        for column in columns:
+            if column not in df.columns:
+                df[column] = ""
+        df = df.sort_values(["RouteTableId"])
         df.to_csv(
             "./csv/route_tables.csv",
             index=False,
-            # columns=[
-            #     "RouteTableId",
-            #     "Tags",
-            #     "VpcId",
-            #     "Associations",
-            #     "PropagatingVgws",
-            #     "Routes",
-            #     "OwnerId",
-            # ],
+            columns=columns,
         )
 
         routescsv = []
@@ -180,7 +209,7 @@ class NetworkSetting:
 
             associations = routetable["Associations"]
             for association in associations:
-                association["RouteTableId"] = id
+                # association["RouteTableId"] = id
                 associationscsv.append(association)
 
             propagatingvgws = routetable["PropagatingVgws"]
@@ -189,21 +218,68 @@ class NetworkSetting:
                 propagatingvgwscsv.append(propagatingvgw)
 
         df = pd.json_normalize(routescsv)
+        columns = [
+            "RouteTableId",
+            "DestinationCidrBlock",
+            "DestinationIpv6CidrBlock",
+            "DestinationPrefixListId",
+            "EgressOnlyInternetGatewayId",
+            "GatewayId",
+            "InstanceId",
+            "InstanceOwnerId",
+            "NatGatewayId",
+            "TransitGatewayId",
+            "LocalGatewayId",
+            "CarrierGatewayId",
+            "NetworkInterfaceId",
+            "Origin",
+            "State",
+            "VpcPeeringConnectionId",
+            "CoreNetworkArn",
+        ]
+        for column in columns:
+            if column not in df.columns:
+                df[column] = ""
+        df = df.sort_values(["RouteTableId", "DestinationCidrBlock"])
         df.to_csv(
             "./csv/route_tables_routes.csv",
             index=False,
+            columns=columns,
         )
 
         df = pd.json_normalize(associationscsv)
+        columns = [
+            "RouteTableId",
+            "RouteTableAssociationId",
+            "SubnetId",
+            "GatewayId",
+            "Main",
+            "AssociationState.State",
+            "AssociationState.StatusMessage",
+        ]
+        for column in columns:
+            if column not in df.columns:
+                df[column] = ""
+        df = df.sort_values(["RouteTableId", "RouteTableAssociationId"])
         df.to_csv(
             "./csv/route_tables_associations.csv",
             index=False,
+            columns=columns,
         )
 
         df = pd.json_normalize(propagatingvgwscsv)
+        columns = [
+            "RouteTableId",
+            "GatewayId",
+        ]
+        for column in columns:
+            if column not in df.columns:
+                df[column] = ""
+        df = df.sort_values(["RouteTableId", "GatewayId"])
         df.to_csv(
             "./csv/route_tables_propagatingvgws.csv",
             index=False,
+            columns=columns,
         )
 
 
