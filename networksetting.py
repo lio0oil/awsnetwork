@@ -71,6 +71,7 @@ class NetworkSetting:
             "MapPublicIpOnLaunch",
             "MapCustomerOwnedIpOnLaunch",
             "CustomerOwnedIpv4Pool",
+            "Tags",
             "OwnerId",
             "AssignIpv6AddressOnCreation",
             "Ipv6CidrBlockAssociationSet",
